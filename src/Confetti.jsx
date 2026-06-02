@@ -4,11 +4,19 @@ const COLORS = ['#8b5cf6','#f59e0b','#22d3ee','#10b981','#ef4444','#f97316','#ec
 
 export default function Confetti({ active }) {
   const canvasRef = useRef(null)
+  const animIdRef = useRef(null)
 
   useEffect(() => {
-    if (!active) return
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
+
+    // When deactivated, cancel animation and wipe the canvas immediately
+    if (!active) {
+      if (animIdRef.current) cancelAnimationFrame(animIdRef.current)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      return
+    }
+
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
@@ -25,7 +33,6 @@ export default function Confetti({ active }) {
       a: 1,
     }))
 
-    let animId
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       let alive = 0
@@ -43,11 +50,14 @@ export default function Confetti({ active }) {
           ctx.restore()
         }
       })
-      if (alive > 0) animId = requestAnimationFrame(animate)
+      if (alive > 0) animIdRef.current = requestAnimationFrame(animate)
       else ctx.clearRect(0, 0, canvas.width, canvas.height)
     }
     animate()
-    return () => cancelAnimationFrame(animId)
+
+    return () => {
+      if (animIdRef.current) cancelAnimationFrame(animIdRef.current)
+    }
   }, [active])
 
   return (
