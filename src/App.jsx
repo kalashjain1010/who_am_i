@@ -7,16 +7,33 @@ import Home from './Home.jsx'
 import Game from './Game.jsx'
 import Answer from './Answer.jsx'
 
+const LS_KEY = 'wai_completed'
+
+function loadCompleted() {
+  try { return new Set(JSON.parse(localStorage.getItem(LS_KEY) || '[]')) }
+  catch { return new Set() }
+}
+
 export default function App() {
-  const [screen, setScreen] = useState('home')   // 'home' | 'game' | 'answer'
+  const [screen, setScreen] = useState('home')
   const [roundIdx, setRoundIdx] = useState(0)
   const [revealed, setRevealed] = useState(1)
   const [confetti, setConfetti] = useState(false)
   const [flashOp, setFlashOp] = useState(0)
+  const [completed, setCompleted] = useState(loadCompleted)
 
   const flash = useCallback(() => {
     setFlashOp(0.5)
     setTimeout(() => setFlashOp(0), 120)
+  }, [])
+
+  const markDone = useCallback((idx) => {
+    setCompleted(prev => {
+      const next = new Set(prev)
+      next.add(idx)
+      localStorage.setItem(LS_KEY, JSON.stringify([...next]))
+      return next
+    })
   }, [])
 
   const startRound = useCallback((idx) => {
@@ -30,11 +47,12 @@ export default function App() {
     setRevealed(r => r + 1)
   }, [])
 
-  const revealAnswer = useCallback(() => {
+  const revealAnswer = useCallback((idx) => {
     flash()
+    markDone(idx)
     setConfetti(true)
     setScreen('answer')
-  }, [flash])
+  }, [flash, markDone])
 
   const nextRound = useCallback(() => {
     setConfetti(false)
@@ -56,14 +74,10 @@ export default function App() {
     <>
       <ParticleBackground />
       <Confetti active={confetti} />
-
-      {/* Flash overlay */}
       <div className="flash" style={{ opacity: flashOp }} />
 
-      {/* HOME */}
-      {screen === 'home' && <Home onSelect={startRound} />}
+      {screen === 'home' && <Home onSelect={startRound} completed={completed} />}
 
-      {/* GAME + ANSWER overlay */}
       {(screen === 'game' || screen === 'answer') && (
         <div className="overlay" style={{ position: 'fixed', zIndex: 10 }}>
           {screen === 'game' && (
@@ -71,7 +85,7 @@ export default function App() {
               round={round}
               revealed={revealed}
               onNext={nextClue}
-              onReveal={revealAnswer}
+              onReveal={() => revealAnswer(roundIdx)}
               onBack={goHome}
             />
           )}
