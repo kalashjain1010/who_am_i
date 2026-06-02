@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 
-export default function Game({ round, revealed, onNext, onReveal, onBack }) {
+export default function Game({ round, revealed, gameMode, onNext, onReveal, onBack }) {
   const wrapRef = useRef(null)
   const allDone = revealed >= round.clues.length
 
@@ -16,6 +16,9 @@ export default function Game({ round, revealed, onNext, onReveal, onBack }) {
       <div className="game-header">
         <button className="back-btn" onClick={onBack}>← Back</button>
         <div className="game-title">WHO AM I?</div>
+        <div className={`mode-pill ${gameMode === 'audience' ? 'mode-pill-audience' : 'mode-pill-quiz'}`}>
+          {gameMode === 'audience' ? '🎭 Audience' : '🔍 Quiz'}
+        </div>
       </div>
 
       <div className="clue-dots">
@@ -30,7 +33,7 @@ export default function Game({ round, revealed, onNext, onReveal, onBack }) {
 
       <div className="clues-wrap" ref={wrapRef}>
         {round.clues.slice(0, revealed).map((clue, i) => (
-          <div key={i} className="clue-item" style={{ animationDelay: '0s' }}>
+          <div key={i} className="clue-item">
             <div className="clue-n">C{i + 1}</div>
             <div className="clue-t">{clue}</div>
           </div>

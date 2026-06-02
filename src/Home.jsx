@@ -2,10 +2,7 @@ import { ALL_ROUNDS, MY_ROUNDS } from './data.js'
 
 function RoundCard({ r, idx, onSelect, isDone }) {
   return (
-    <div
-      className={`round-card${isDone ? ' round-done' : ''}`}
-      onClick={() => onSelect(idx)}
-    >
+    <div className={`round-card${isDone ? ' round-done' : ''}`} onClick={() => onSelect(idx)}>
       <div className="rc-top">
         <div className="rc-num">{r.n}</div>
         <div className="rc-badges">
@@ -24,11 +21,32 @@ function RoundCard({ r, idx, onSelect, isDone }) {
   )
 }
 
-export default function Home({ onSelect, completed }) {
+export default function Home({ onSelect, completed, gameMode, onModeChange }) {
   const base = ALL_ROUNDS.length
   return (
     <div className="home">
       <div className="home-title">WHO AM I?</div>
+
+      {/* Mode toggle */}
+      <div className="mode-toggle-row">
+        <button
+          className={`mode-toggle-btn${gameMode === 'quiz' ? ' active' : ''}`}
+          onClick={() => onModeChange('quiz')}
+        >
+          🔍 Quiz Mode
+        </button>
+        <button
+          className={`mode-toggle-btn${gameMode === 'audience' ? ' active' : ''}`}
+          onClick={() => onModeChange('audience')}
+        >
+          🎭 Audience Mode
+        </button>
+      </div>
+      <p className="mode-toggle-desc">
+        {gameMode === 'audience'
+          ? 'Contestant looks away — photo shown first, then clues read aloud'
+          : 'Everyone guesses together from the clues'}
+      </p>
 
       <div className="rounds-grid">
         {ALL_ROUNDS.map((r, i) => (

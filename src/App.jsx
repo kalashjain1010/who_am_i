@@ -6,6 +6,7 @@ import Confetti from './Confetti.jsx'
 import Home from './Home.jsx'
 import Game from './Game.jsx'
 import Answer from './Answer.jsx'
+import PhotoReveal from './PhotoReveal.jsx'
 
 const LS_KEY = 'wai_completed'
 
@@ -15,12 +16,13 @@ function loadCompleted() {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState('home')
+  const [screen, setScreen] = useState('home')   // 'home' | 'photo' | 'game' | 'answer'
   const [roundIdx, setRoundIdx] = useState(0)
   const [revealed, setRevealed] = useState(1)
   const [confetti, setConfetti] = useState(false)
   const [flashOp, setFlashOp] = useState(0)
   const [completed, setCompleted] = useState(loadCompleted)
+  const [gameMode, setGameMode] = useState('quiz')  // 'quiz' | 'audience'
 
   const flash = useCallback(() => {
     setFlashOp(0.5)
@@ -36,10 +38,15 @@ export default function App() {
     })
   }, [])
 
-  const startRound = useCallback((idx) => {
+  const handleCardClick = useCallback((idx) => {
     setRoundIdx(idx)
     setRevealed(1)
     setConfetti(false)
+    // Audience mode: show photo first. Quiz mode: straight to clues.
+    setScreen(gameMode === 'audience' ? 'photo' : 'game')
+  }, [gameMode])
+
+  const startClues = useCallback(() => {
     setScreen('game')
   }, [])
 
@@ -56,12 +63,15 @@ export default function App() {
 
   const nextRound = useCallback(() => {
     setConfetti(false)
-    if (roundIdx + 1 < ROUNDS.length) {
-      startRound(roundIdx + 1)
+    const next = roundIdx + 1
+    if (next < ROUNDS.length) {
+      setRoundIdx(next)
+      setRevealed(1)
+      setScreen(gameMode === 'audience' ? 'photo' : 'game')
     } else {
       setScreen('home')
     }
-  }, [roundIdx, startRound])
+  }, [roundIdx, gameMode])
 
   const goHome = useCallback(() => {
     setConfetti(false)
@@ -76,14 +86,25 @@ export default function App() {
       <Confetti active={confetti} />
       <div className="flash" style={{ opacity: flashOp }} />
 
-      {screen === 'home' && <Home onSelect={startRound} completed={completed} />}
+      {screen === 'home' && (
+        <Home
+          onSelect={handleCardClick}
+          completed={completed}
+          gameMode={gameMode}
+          onModeChange={setGameMode}
+        />
+      )}
 
-      {(screen === 'game' || screen === 'answer') && (
+      {(screen === 'photo' || screen === 'game' || screen === 'answer') && (
         <div className="overlay" style={{ position: 'fixed', zIndex: 10 }}>
+          {screen === 'photo' && (
+            <PhotoReveal round={round} onStart={startClues} onBack={goHome} />
+          )}
           {screen === 'game' && (
             <Game
               round={round}
               revealed={revealed}
+              gameMode={gameMode}
               onNext={nextClue}
               onReveal={() => revealAnswer(roundIdx)}
               onBack={goHome}
