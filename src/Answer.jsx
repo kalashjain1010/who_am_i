@@ -60,10 +60,12 @@ export default function Answer({ round, revealed, onNext, onHome, isLast }) {
       </div>
 
       <div className="ans-btns">
-        <button className="btn-home" onClick={onHome}>← All Rounds</button>
-        <button className="btn-nxt" onClick={onNext}>
-          {isLast ? 'Finish' : 'Next Round →'}
-        </button>
+        <div className="ans-btns-inner">
+          <button className="btn-home" onClick={onHome}>← All Rounds</button>
+          <button className="btn-nxt" onClick={onNext}>
+            {isLast ? 'Finish' : 'Next Round →'}
+          </button>
+        </div>
       </div>
     </div>
   )

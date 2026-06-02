@@ -229,8 +229,9 @@ html, body, #root {
 /* ── ANSWER ── */
 .answer-page {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; min-height: 100vh; padding: 2rem;
-  gap: 1.5rem; position: relative; overflow: hidden;
+  justify-content: flex-start; min-height: 100vh; padding: 1.5rem 1.5rem 5rem;
+  gap: 1.2rem; position: relative; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--purple) transparent;
 }
 
 .ans-label {
@@ -300,12 +301,13 @@ html, body, #root {
 .ans-recap {
   display: flex; flex-direction: column; gap: .5rem;
   max-width: 660px; width: 100%; text-align: left;
-  max-height: 38vh; overflow-y: auto;
-  scrollbar-width: thin; scrollbar-color: var(--purple) transparent;
 }
 
-.ans-recap::-webkit-scrollbar { width: 3px; }
-.ans-recap::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 2px; }
+.ans-btns {
+  position: sticky; bottom: 0;
+  background: linear-gradient(to top, #06060f 60%, transparent);
+  padding-top: 1.5rem; width: 100%; max-width: 660px;
+}
 
 .ans-recap-item {
   border-radius: 10px; background: rgba(255, 255, 255, .03);
@@ -329,7 +331,7 @@ html, body, #root {
   padding: .2rem .8rem .45rem 2.1rem; line-height: 1.5; opacity: .85;
 }
 
-.ans-btns { display: flex; gap: .9rem; flex-wrap: wrap; justify-content: center; }
+.ans-btns-inner { display: flex; gap: .9rem; flex-wrap: wrap; justify-content: center; }
 
 .btn-home {
   background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .13);
@@ -350,24 +352,33 @@ html, body, #root {
 
 .btn-nxt:hover { box-shadow: 0 6px 28px rgba(139, 92, 246, .6); transform: translateY(-2px); }
 
-/* ── AI DIVIDER ── */
-.ai-divider {
-  display: flex; align-items: center; gap: 1.2rem;
-  max-width: 1300px; margin: 3rem auto 0;
-}
-.ai-divider-line {
-  flex: 1; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--purple), transparent);
-}
-.ai-divider-label {
-  font-family: 'Orbitron', sans-serif;
-  font-size: .85rem; letter-spacing: .2em; color: var(--gold);
-  white-space: nowrap;
-  text-shadow: 0 0 12px rgba(245,158,11,.5);
-}
-.ai-note {
-  text-align: center; font-size: .78rem; color: var(--muted);
-  margin: .6rem auto 0; letter-spacing: .05em; max-width: 1300px;
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .home { padding: 1.2rem 1rem 3rem; }
+  .home-title { font-size: 2rem; margin-bottom: 1.5rem; }
+  .rounds-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .7rem; }
+  .rc-num { font-size: 1.3rem; }
+  .rc-mystery { font-size: 1.6rem; }
+  .rc-tagline { font-size: .7rem; }
+
+  .game-page { padding: 1rem 1rem .8rem; gap: .7rem; }
+  .game-title { font-size: 1.3rem; letter-spacing: .1em; }
+  .clue-t { font-size: .95rem; line-height: 1.5; }
+  .clue-item { padding: .75rem 1rem; }
+  .clue-n { font-size: .62rem; min-width: 20px; }
+  .cdot { width: 8px; height: 8px; }
+  .clue-label { font-size: .72rem; }
+  .btn-next { font-size: .9rem; padding: .75rem 1.2rem; }
+  .btn-reveal { font-size: .75rem; padding: .55rem .9rem; }
+
+  .answer-page { padding: 1.2rem 1rem 5rem; gap: 1rem; }
+  .ans-photo-wrap { width: 120px; height: 120px; }
+  .ans-word { font-size: 1.8rem; }
+  .ans-label { font-size: .75rem; }
+  .arc-clue { font-size: .78rem; }
+  .arc-explain { font-size: .73rem; padding-left: 1.8rem; }
+  .ans-btns-inner { flex-direction: column; }
+  .btn-home, .btn-nxt { width: 100%; text-align: center; }
 }
 
 /* ── FLASH ── */
