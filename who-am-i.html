@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who Am I?</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060f;
+  --bg2: #0d0d20;
+  --purple: #8b5cf6;
+  --purple2: #6d28d9;
+  --gold: #f59e0b;
+  --gold2: #d97706;
+  --cyan: #22d3ee;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #f1f5f9;
+  --muted: #64748b;
+  --card: rgba(139,92,246,0.08);
+  --card-border: rgba(139,92,246,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif}
+
+/* ── CANVAS ── */
+#bgCanvas,#confettiCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#bgCanvas{z-index:0}
+#confettiCanvas{z-index:200}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s ease;transform:translateY(16px)}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* ── GLOW TITLE ── */
+.glow-title{font-family:'Orbitron',sans-serif;font-size:clamp(2rem,5vw,4rem);font-weight:900;text-align:center;letter-spacing:.12em;background:linear-gradient(135deg,#a78bfa,#f59e0b,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 24px rgba(139,92,246,.7));animation:titlePulse 3s ease-in-out infinite}
+@keyframes titlePulse{0%,100%{filter:drop-shadow(0 0 24px rgba(139,92,246,.7))}50%{filter:drop-shadow(0 0 40px rgba(245,158,11,.8))}}
+.subtitle{font-size:clamp(.9rem,1.8vw,1.2rem);color:var(--muted);letter-spacing:.25em;text-transform:uppercase;margin-top:.5rem;text-align:center}
+
+/* ── HOME SCREEN ── */
+#homeScreen{justify-content:flex-start;overflow-y:auto;gap:2rem;padding:2.5rem 2rem 3rem}
+.home-header{text-align:center;padding-top:1rem}
+.episodes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1rem;width:100%;max-width:900px}
+.ep-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:1.4rem 1.2rem;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.ep-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.15),transparent);opacity:0;transition:opacity .3s}
+.ep-card:hover{transform:translateY(-6px) scale(1.02);border-color:var(--purple);box-shadow:0 8px 32px rgba(139,92,246,.35)}
+.ep-card:hover::before{opacity:1}
+.ep-card:active{transform:scale(.97)}
+.ep-num{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:.15em;color:var(--purple);text-transform:uppercase;margin-bottom:.4rem}
+.ep-title{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.ep-panelists{font-size:.75rem;color:var(--muted);line-height:1.5}
+.ep-badge{position:absolute;top:.8rem;right:.8rem;background:var(--purple2);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:999px;letter-spacing:.05em}
+.ep-big-num{font-family:'Orbitron',sans-serif;font-size:2.8rem;font-weight:900;text-align:center;background:linear-gradient(135deg,#a78bfa,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.ep-card{min-height:100px;display:flex;align-items:center;justify-content:center}
+
+/* ── CONTESTANT SCREEN ── */
+#contestantScreen{gap:2.5rem}
+.back-btn{position:absolute;top:1.5rem;left:1.5rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;font-family:'Poppins',sans-serif;transition:all .2s;display:flex;align-items:center;gap:.4rem}
+.back-btn:hover{background:rgba(139,92,246,.15);border-color:var(--purple);color:var(--text)}
+.contestant-ep-label{font-size:.85rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+.contestant-ep-panelists{font-size:.9rem;color:var(--purple);margin-top:.3rem;text-align:center}
+.contestants-row{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem}
+.ct-card{background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:2rem 1.8rem;cursor:pointer;transition:all .35s cubic-bezier(.34,1.56,.64,1);min-width:180px;text-align:center;position:relative;overflow:hidden}
+.ct-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--gold));transform:scaleX(0);transition:transform .3s}
+.ct-card:hover{transform:translateY(-8px);border-color:var(--purple);box-shadow:0 12px 40px rgba(139,92,246,.4)}
+.ct-card:hover::after{transform:scaleX(1)}
+.ct-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--purple2),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 1rem;font-weight:700;color:#fff}
+.ct-name{font-size:1.1rem;font-weight:700}
+.ct-clue-count{font-size:.78rem;color:var(--muted);margin-top:.3rem}
+
+/* ── GAME SCREEN ── */
+#gameScreen{gap:0;justify-content:space-between;padding:1.5rem 2rem 1.5rem}
+.game-top{width:100%;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.who-am-i-label{font-family:'Orbitron',sans-serif;font-size:clamp(1.5rem,3.5vw,2.5rem);font-weight:900;letter-spacing:.2em;background:linear-gradient(90deg,var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 16px rgba(139,92,246,.6))}
+.game-contestant{font-size:clamp(1rem,2vw,1.3rem);font-weight:600;color:var(--gold);letter-spacing:.08em}
+.clue-progress{display:flex;align-items:center;gap:.6rem;margin-top:.5rem}
+.clue-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .4s}
+.clue-dot.revealed{background:var(--purple);box-shadow:0 0 8px var(--purple)}
+.clue-dot.current{background:var(--gold);box-shadow:0 0 10px var(--gold);transform:scale(1.3)}
+.clue-count-label{font-size:.8rem;color:var(--muted);margin-left:.4rem}
+
+.clues-area{flex:1;width:100%;max-width:820px;overflow-y:auto;display:flex;flex-direction:column;gap:.75rem;padding:.75rem 0;scrollbar-width:thin;scrollbar-color:var(--purple) transparent}
+.clues-area::-webkit-scrollbar{width:4px}
+.clues-area::-webkit-scrollbar-track{background:transparent}
+.clues-area::-webkit-scrollbar-thumb{background:var(--purple);border-radius:2px}
+
+.clue-card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:1rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;animation:clueSlideIn .5s cubic-bezier(.34,1.56,.64,1) both;position:relative;overflow:hidden}
+.clue-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--purple),var(--cyan));border-radius:2px 0 0 2px}
+@keyframes clueSlideIn{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.clue-number{font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;color:var(--purple);min-width:28px;padding-top:.1rem;letter-spacing:.05em}
+.clue-text{font-size:clamp(.95rem,1.8vw,1.15rem);line-height:1.6;font-weight:500}
+
+.game-controls{width:100%;max-width:820px;display:flex;gap:1rem;align-items:center;padding-top:.75rem}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.85rem 2rem;border-radius:12px;font-family:'Poppins',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all .25s cubic-bezier(.34,1.56,.64,1);letter-spacing:.04em;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s}
+.btn:hover::after{opacity:1}
+.btn:active{transform:scale(.95)}
+.btn-primary{background:linear-gradient(135deg,var(--purple2),var(--purple));color:#fff;box-shadow:0 4px 20px rgba(139,92,246,.4)}
+.btn-primary:hover{box-shadow:0 8px 32px rgba(139,92,246,.6);transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-reveal{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;flex:1;font-size:1.05rem;animation:revealPulse 2s ease-in-out infinite}
+.btn-reveal:hover{box-shadow:0 8px 32px rgba(245,158,11,.6);transform:translateY(-2px)}
+@keyframes revealPulse{0%,100%{box-shadow:0 4px 20px rgba(245,158,11,.35)}50%{box-shadow:0 4px 32px rgba(245,158,11,.7)}}
+.btn-next{background:rgba(139,92,246,.15);border:1px solid var(--card-border);color:var(--text)}
+.btn-next:hover{background:rgba(139,92,246,.25);border-color:var(--purple)}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)}
+.btn-ghost:hover{background:rgba(255,255,255,.1);color:var(--text)}
+
+/* ── ANSWER SCREEN ── */
+#answerScreen{gap:2rem}
+.answer-label{font-size:clamp(.9rem,2vw,1.1rem);color:var(--muted);letter-spacing:.3em;text-transform:uppercase}
+.answer-the-word{font-family:'Orbitron',sans-serif;font-size:clamp(2.5rem,7vw,5.5rem);font-weight:900;text-align:center;letter-spacing:.06em;background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:answerReveal .7s cubic-bezier(.34,1.56,.64,1) both,answerGlow 2s ease-in-out .7s infinite}
+@keyframes answerReveal{from{opacity:0;transform:scale(.4) rotate(-6deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes answerGlow{0%,100%{filter:drop-shadow(0 0 20px rgba(245,158,11,.6))}50%{filter:drop-shadow(0 0 50px rgba(239,68,68,.8))}}
+.answer-clues-recap{display:flex;flex-direction:column;gap:.4rem;max-width:600px;width:100%;text-align:center}
+.answer-clue-recap-item{font-size:.82rem;color:var(--muted);line-height:1.5;padding:.3rem .8rem;border-radius:8px;background:rgba(255,255,255,.03)}
+.answer-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem}
+
+/* ── FLASH OVERLAY ── */
+#flashOverlay{position:fixed;inset:0;z-index:150;background:#fff;opacity:0;pointer-events:none;transition:opacity .1s}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="confettiCanvas"></canvas>
+<div id="flashOverlay"></div>
+
+<!-- HOME -->
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <div class="glow-title">WHO AM I?</div>
+  </div>
+  <div class="episodes-grid" id="episodesGrid"></div>
+</div>
+
+<!-- CONTESTANT PICK -->
+<div class="screen" id="contestantScreen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="glow-title" style="font-size:clamp(1.5rem,3vw,2.5rem)">Pick an Option</div>
+  <div id="ctEpLabel" style="display:none"></div>
+  <div id="ctPanelists" style="display:none"></div>
+  <div class="contestants-row" id="contestantsRow"></div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="gameScreen">
+  <button class="back-btn" onclick="goContestants()">← Back</button>
+  <div class="game-top">
+    <div class="who-am-i-label">WHO AM I?</div>
+    <div id="gameContestantName" style="display:none"></div>
+    <div class="clue-progress" id="clueProgress"></div>
+  </div>
+  <div class="clues-area" id="cluesArea"></div>
+  <div class="game-controls">
+    <button class="btn btn-next" id="nextClueBtn" onclick="nextClue()">Next Clue ›</button>
+    <button class="btn btn-reveal" onclick="revealAnswer()">🎭 Reveal Answer</button>
+  </div>
+</div>
+
+<!-- ANSWER -->
+<div class="screen" id="answerScreen">
+  <div class="answer-label">The answer is…</div>
+  <div class="answer-the-word" id="answerWord"></div>
+  <div class="answer-clues-recap" id="answerRecap"></div>
+  <div class="answer-actions">
+    <button class="btn btn-primary" onclick="goContestants()">Next Contestant</button>
+    <button class="btn btn-ghost" onclick="goHome()">All Episodes</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const EPISODES = [
+  {
+    id:1, label:"Episode 1",
+    panelists:"Hoezay · K Sebastian · Abhish Mathew",
+    contestants:[
+      { name:"Hoezay", answer:"Mother Teresa", clues:[
+        "I was virtue signalling before it was cool",
+        "Haters prayed for my downfall but I kept slaying",
+        "Every Miss World would name-drop me in the 90s",
+        "I would have been the perfect target audience for Tide detergent",
+        "I am known to help the needy and downtrodden in Bengal"
+      ]},
+      { name:"K Sebastian", answer:"Kunal Kamra", clues:[
+        "I grew up in Maharashtra but now I live in the South",
+        "Hair loss is the least of my problems",
+        "When it comes to cabs, I only take Uber",
+        "I have become what I hated",
+        "I am every lawyer's dream client"
+      ]},
+      { name:"Abhish Mathew", answer:"Osama Bin Laden", clues:[
+        "I love playing hide and seek",
+        "I have a high body count",
+        "I love living off the grid",
+        'My favourite song is "Wake Me Up When September Ends"',
+        "I have a very explosive career"
+      ]}
+    ]
+  },
+  {
+    id:2, label:"Episode 2",
+    panelists:"Karunesh Talwar · Anirban Das · Shamik Chakravarti",
+    contestants:[
+      { name:"Karunesh Talwar", answer:"Dawood Ibrahim", clues:[
+        "I brought corporate structure to a largely unorganized sector",
+        "Bollywood celebs often dance at my son's wedding",
+        "Newcomers I mentored eventually started competing against me",
+        "I have made a huge impact on cricket",
+        "I run a thriving import-export business"
+      ]},
+      { name:"Anirban Das", answer:"Raj Kundra", clues:[
+        "I am a champion of female employment",
+        "People think I like my money the way I like my coffee, black",
+        "My work is very popular in boys hostels",
+        "I was a very diligent follower of the mask mandate",
+        "My wife once offered UP and Bihar in exchange for a kiss"
+      ]},
+      { name:"Shamik Chakravarti", answer:"Mohammad Ali Jinnah", clues:[
+        "Everyone calls me a green flag",
+        "I was portrayed by a British actor in my biopic",
+        "I am the reason you enjoyed the Asia Cup",
+        "I want Patiala but not its pack",
+        "I always supported minorities"
+      ]}
+    ]
+  },
+  {
+    id:3, label:"Episode 3",
+    panelists:"Raunaq Rajani · Gurleen Pannu · Amit Tandon",
+    contestants:[
+      { name:"Amit Tandon", answer:"Milind Soman", clues:[
+        "Even at my old age, I am the primary breadwinner for my family",
+        "I was India's OG health influencer",
+        "On one side is the wife at home, on the other side is the woman outside"
+      ]},
+      { name:"Gurleen Pannu", answer:"Donald Trump", clues:[
+        "I really, really, really love my daughter",
+        "I have been inducted into the WWE Hall of Fame",
+        "I hate all my neighbors",
+        "My foundation never matches my skin tone",
+        "My best friend owns an island"
+      ]},
+      { name:"Raunaq Rajani", answer:"Eminem", clues:[
+        "I am a minority in my field",
+        "I have a lot of heavy flow days",
+        "I love going into battle",
+        "My best friend is a doctor",
+        "My name sounds like a chocolate"
+      ]}
+    ]
+  },
+  {
+    id:4, label:"Episode 4",
+    panelists:"Azeem Banatwalla · Varun Thakur · Kautuk Srivastava",
+    contestants:[
+      { name:"Azeem Banatwalla", answer:"MS Dhoni", clues:[
+        "I hate when people don't buy a ticket",
+        "People think every year will be my last",
+        "I dare you to name another celebrity from my hometown",
+        "An overweight yellow man follows me everywhere I go",
+        "It takes me not five but seven hints to understand"
+      ]},
+      { name:"Varun Thakur", answer:"Jawaharlal Nehru", clues:[
+        "I walk English, I talk English, I even drink English",
+        "I love kids, but not like Michael Jackson",
+        "My legacy lives on in Fab India",
+        "Even I can't believe how bad my future generations are"
+      ]},
+      { name:"Kautuk Srivastava", answer:"Anurag Kashyap", clues:[
+        "I don't worry about tomorrow",
+        "Influencers are ruining my favourite festival",
+        "My social media is one battle after another",
+        "I wish my brother would shut up",
+        "I am NREGA for ugly people"
+      ]}
+    ]
+  },
+  {
+    id:5, label:"Episode 5",
+    panelists:"Gaurav Kapoor · Rahul Subramanian · Sumaira Shaikh",
+    contestants:[
+      { name:"Rahul Subramanian", answer:"Mahatma Gandhi", clues:[
+        "I love long walks on the beach",
+        "I have a high thread count",
+        "I am the original Salt Bae",
+        "I conducted many social experiments",
+        "I was one of the first people to try intermittent fasting"
+      ]},
+      { name:"Gaurav Kapoor", answer:"Virat Kohli", clues:[
+        "I spend a lot of time around God",
+        "I get basic spellings wrong",
+        "I have disappointed a city for close to two decades",
+        "I am a fitness freak but I love vada pav",
+        "I run to London the first chance I get"
+      ]},
+      { name:"Sumaira Shaikh", answer:"Sanjay Dutt", clues:[
+        "I am not afraid of needles",
+        "I hate white shirts with black stripes",
+        "I have a lot of respect in Dubai",
+        "I think hugging can cure disease",
+        "In a way, I am the black sheep of the family"
+      ]}
+    ]
+  },
+  {
+    id:6, label:"Episode 6",
+    panelists:"Kaustubh Agarwal · Ashish Solanki · Rajat Sood",
+    contestants:[
+      { name:"Kaustubh Agarwal", answer:"Ajay Devgn", clues:[
+        "I hate vowels",
+        "I might lose my own look-alike contest"
+      ]},
+      { name:"Ashish Solanki", answer:"Ramdev", clues:[
+        "My face makes people want to swear",
+        "Someone else now rules my state",
+        "The government gives and the government takes away",
+        "When things went wrong, I turned to spirituality",
+        "This should be left for the comedians"
+      ]},
+      { name:"Rajat Sood", answer:"Yo Yo Honey Singh", clues:[
+        "In another life I would have been a gynecologist",
+        "I only enjoy tea if it's followed by a series",
+        "I don't play football but I am always tripping balls",
+        "There is not a single party I haven't joined",
+        "I am a famous mafia member"
+      ]}
+    ]
+  },
+  {
+    id:7, label:"Episode 7",
+    panelists:"Anubhav Singh Bassi · Aakash Gupta · Shreeja Chaturvedi",
+    contestants:[
+      { name:"Aakash Gupta", answer:"Kangana Ranaut", clues:[
+        "Delhi is the only solution",
+        "I hate airport security",
+        "I love Thums Up",
+        "I believe in karma over dharma",
+        'I thought "Koi Mil Gaya" but I was wrong'
+      ]},
+      { name:"Anubhav Singh Bassi", answer:"Sachin Tendulkar", clues:[
+        "I am a religious figure",
+        "It's really hard to say my name just once",
+        "People compare me to a Don",
+        "I am the one who knocks",
+        "I don't respect other people's boundaries"
+      ]},
+      { name:"Shreeja Chaturvedi", answer:"Salman Khan", clues:[
+        "I have stopped trying",
+        "I am very busy on Raksha Bandhan",
+        "I wish my brothers would do something except divorce",
+        "There is no guardian for my Galaxy"
+      ]}
+    ]
+  },
+  {
+    id:8, label:"Episode 8",
+    panelists:"Hoezaay · Urooj Ashfaq · Rahul Subramanian",
+    contestants:[
+      { name:"Hoezaay", answer:"Agastya Nanda", clues:[
+        "I am the only nepo kid with a spine",
+        "People distrust me because my mother was born abroad",
+        "Even I did not know I had a huge fan base in South Bombay",
+        "I have an Empire State of Mind",
+        "My mother famously covered an off-season wedding"
+      ]},
+      { name:"Rahul Subramanian", answer:"Poonam Pandey", clues:[
+        "I passed away in early 2024",
+        "November is a slow month",
+        "People get annoyed when I try and spread awareness",
+        "Like any freelancer, sometimes all I get is exposure",
+        "I don't have AC, I have only fans"
+      ]},
+      { name:"Urooj Ashfaq", answer:"Deepika Padukone", clues:[
+        "My father took me to court when I was little",
+        "My favourite bird has migrated from India",
+        "I prefer diesel over petrol",
+        "My ex made a tamasha of my life",
+        "People say me and my husband share a wardrobe"
+      ]}
+    ]
+  },
+  {
+    id:9, label:"Episode 9",
+    panelists:"Anirban Dasgupta · Biswajit Sarkar · Prashasti Singh",
+    contestants:[
+      { name:"Anirban Dasgupta", answer:"Elon Musk", clues:[
+        "I am in love with my ex",
+        "I am one of the few people to get fired from a government job",
+        'When people ask "will all this money go up?", I say yes',
+        "I have lived long enough to become the villain",
+        "I am the second worst thing to come out of South Africa after apartheid"
+      ]},
+      { name:"Biswajit Sarkar", answer:"Christopher Nolan", clues:[
+        "I come into your heart but not into your understanding",
+        "She meets me in dreams",
+        "I don't watch cricket, but I like bats",
+        "I like big budgets and I cannot lie",
+        "Even my bomb is a hit"
+      ]},
+      { name:"Prashasti Singh", answer:"Neil Armstrong", clues:[
+        "I wear a very expensive suit at work",
+        "I believe in taking even small steps",
+        "There used to be a lot of buzz around me",
+        "My Karva Chauth would be iconic",
+        "Michael Jackson stole my hook step"
+      ]}
+    ]
+  },
+  {
+    id:10, label:"Episode 10",
+    panelists:"Ashish Solanki · Shreya Priya Roy · Omkar Yadav",
+    contestants:[
+      { name:"Omkar Yadav", answer:"Arvind Kejriwal", clues:[
+        "Alcohol has ruined my career",
+        "Started from the bottom, now I am back there",
+        "I love playing the sweep shot",
+        "I have put caps on many people"
+      ]},
+      { name:"Ashish Solanki", answer:"Sourav Ganguly", clues:[
+        "My topless picture went viral",
+        "I am a lefty but everyone wants to make me a righty",
+        "If I play football, I will always be offside",
+        "I am from the city that always sleeps",
+        "At the peak of my youth, I was called a grandfather"
+      ]},
+      { name:"Shreya Priya Roy", answer:"Viswanathan Anand", clues:[
+        "Pawns are on the horse, but Russians are after me",
+        "I have a very sedentary job",
+        "My cheques never bounce",
+        "Never let them know your next move",
+        "It doesn't matter if you are black or white"
+      ]}
+    ]
+  },
+  {
+    id:11, label:"Episode 11",
+    panelists:"Gurleen Pannu · Rahul Dua · Gaurav Gupta",
+    contestants:[
+      { name:"Rahul Dua", answer:"Shashi Tharoor", clues:[
+        "I don't dig up the past",
+        "No one worked harder than me just to become a secretary",
+        "The British left but left behind their offspring",
+        "My favourite cricketer sounds like a phone brand",
+        "I will destroy you in Scrabble"
+      ]},
+      { name:"Gaurav Gupta", answer:"Rekha", clues:[
+        'My biopic will be called "The Vampire Diaries"',
+        "She doesn't appreciate what she's got",
+        "I talk to the paparazzi with respect",
+        "He is so respectful to computers",
+        "My namesake is ruining Delhi"
+      ]},
+      { name:"Gurleen Pannu", answer:"Sunny Deol", clues:[
+        "May Pakistan's mother rest in peace",
+        "I am the face of noise pollution",
+        "Calendars make me furious",
+        "In another life I would have become a plumber",
+        "I am very heavy-handed"
+      ]}
+    ]
+  },
+  {
+    id:12, label:"Episode 12",
+    panelists:"Shamik Chakrabarti · Shreeja Chaturvedi · Chirag Panjwani",
+    contestants:[
+      { name:"Chirag Panjwani", answer:"Vladimir Putin", clues:[
+        "I am bad at setting boundaries",
+        'My name leads to "earth" (that\'s what she said)',
+        "I am my country's strongman",
+        "I have gone to war with a stand-up comic",
+        "Bald Patel"
+      ]},
+      { name:"Shamik Chakrabarti", answer:"Dwayne \"The Rock\" Johnson", clues:[
+        "Kala Patthar (Black Rock)",
+        "I hate Diesel",
+        "I am in front of a hard place",
+        "My greatest rival is paper",
+        "Sakhht launda (tough guy)"
+      ]},
+      { name:"Shreeja Chaturvedi", answer:"Ratan Tata", clues:[
+        "Bye bye",
+        "I am a minority with a majority stake",
+        "Being my employee is every comedian's punchline",
+        "Drink kaaram, drink juice — got no fun",
+        "Cyrus made me a scapegoat"
+      ]}
+    ]
+  },
+  {
+    id:13, label:"Finale",
+    panelists:"Kaneez Surka · Abish Mathew · Rohan Joshi",
+    contestants:[
+      { name:"Rohan Joshi", answer:"Stephen Hawking", clues:[
+        "They see me rolling, they hating",
+        "Battery life is very important",
+        "I never leave my chair",
+        "Topper behavior with a backbencher attitude",
+        "Idiots think I sell pressure cookers"
+      ]},
+      { name:"Kaneez Surka", answer:"Rahul Gandhi", clues:[
+        'Everyone asks me, "How is Mummy?"',
+        "Proudly single",
+        "Winning isn't everything",
+        "I'm not the life of a party, I'm the death of a party",
+        "I am the last pasta"
+      ]},
+      { name:"Abish Mathew", answer:"Adolf Hitler", clues:[
+        "My speeches bring all the boys to the yard",
+        'To my critics I say, "Don\'t do it, boy"',
+        "I blame all my failures on past leaders",
+        "I have a very passionate fan base",
+        "I despise liberals and intellectuals"
+      ]}
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let currentEp = null;
+let currentContestant = null;
+let revealedCount = 0;
+
+/* ═══════════════════════════════════════════
+   PARTICLE BACKGROUND
+═══════════════════════════════════════════ */
+(function initBg(){
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  for(let i=0;i<90;i++) particles.push({
+    x:Math.random()*2000, y:Math.random()*1200,
+    r:Math.random()*1.8+.4,
+    dx:(Math.random()-.5)*.3,
+    dy:(Math.random()-.5)*.3,
+    alpha:Math.random()*.6+.1
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.dx; p.y+=p.dy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(139,92,246,${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+let confettiPieces=[], confettiActive=false;
+const confettiCanvas=document.getElementById('confettiCanvas');
+const confettiCtx=confettiCanvas.getContext('2d');
+confettiCanvas.width=window.innerWidth; confettiCanvas.height=window.innerHeight;
+window.addEventListener('resize',()=>{confettiCanvas.width=window.innerWidth;confettiCanvas.height=window.innerHeight;});
+const CONFETTI_COLORS=['#8b5cf6','#f59e0b','#22d3ee','#10b981','#ef4444','#f97316','#ec4899','#a3e635'];
+function spawnConfetti(){
+  confettiPieces=[];
+  for(let i=0;i<200;i++){
+    confettiPieces.push({
+      x:Math.random()*confettiCanvas.width, y:-10-Math.random()*200,
+      w:6+Math.random()*8, h:8+Math.random()*10,
+      color:CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+      rotation:Math.random()*360,
+      rotSpeed:(Math.random()-.5)*8,
+      dy:3+Math.random()*4, dx:(Math.random()-.5)*2,
+      alpha:1
+    });
+  }
+  confettiActive=true;
+  animateConfetti();
+}
+function animateConfetti(){
+  if(!confettiActive) return;
+  confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  let alive=0;
+  confettiPieces.forEach(p=>{
+    p.y+=p.dy; p.x+=p.dx; p.rotation+=p.rotSpeed;
+    if(p.y>confettiCanvas.height) p.alpha-=.05;
+    if(p.alpha>0){ alive++;
+      confettiCtx.save();
+      confettiCtx.globalAlpha=p.alpha;
+      confettiCtx.translate(p.x+p.w/2,p.y+p.h/2);
+      confettiCtx.rotate(p.rotation*Math.PI/180);
+      confettiCtx.fillStyle=p.color;
+      confettiCtx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      confettiCtx.restore();
+    }
+  });
+  if(alive>0) requestAnimationFrame(animateConfetti);
+  else{ confettiActive=false; confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); }
+}
+
+/* ═══════════════════════════════════════════
+   SCREEN TRANSITIONS
+═══════════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  setTimeout(()=>document.getElementById(id).classList.add('active'),20);
+}
+
+/* ═══════════════════════════════════════════
+   FLASH
+═══════════════════════════════════════════ */
+function flash(){
+  const el=document.getElementById('flashOverlay');
+  el.style.opacity='.6';
+  setTimeout(()=>el.style.opacity='0',120);
+}
+
+/* ═══════════════════════════════════════════
+   HOME
+═══════════════════════════════════════════ */
+function renderHome(){
+  const grid=document.getElementById('episodesGrid');
+  grid.innerHTML=EPISODES.map((ep,i)=>`
+    <div class="ep-card" onclick="selectEpisode(${ep.id})">
+      <div class="ep-big-num">${i+1}</div>
+    </div>
+  `).join('');
+}
+
+function selectEpisode(id){
+  currentEp=EPISODES.find(e=>e.id===id);
+  renderContestants();
+  showScreen('contestantScreen');
+}
+
+function goHome(){
+  currentEp=null; currentContestant=null; revealedCount=0;
+  showScreen('homeScreen');
+}
+
+/* ═══════════════════════════════════════════
+   CONTESTANTS
+═══════════════════════════════════════════ */
+const AVATARS=['🎭','🎪','🎨','🌟','🎯','🎲','🃏','🎬'];
+function renderContestants(){
+  document.getElementById('ctEpLabel').textContent='';
+  document.getElementById('ctPanelists').textContent='';
+  const row=document.getElementById('contestantsRow');
+  row.innerHTML=currentEp.contestants.map((_,i)=>`
+    <div class="ct-card" onclick="selectContestant(${i})" style="animation-delay:${i*.1}s">
+      <div class="ct-avatar">${i+1}</div>
+      <div class="ct-name">Option ${i+1}</div>
+    </div>
+  `).join('');
+}
+
+function selectContestant(idx){
+  currentContestant=currentEp.contestants[idx];
+  revealedCount=0;
+  renderGame();
+  showScreen('gameScreen');
+}
+
+function goContestants(){
+  revealedCount=0;
+  renderContestants();
+  showScreen('contestantScreen');
+}
+
+/* ═══════════════════════════════════════════
+   GAME
+═══════════════════════════════════════════ */
+function renderGame(){
+  document.getElementById('gameContestantName').textContent=currentContestant.name;
+  document.getElementById('cluesArea').innerHTML='';
+  renderProgress();
+  updateNextBtn();
+  // Reveal first clue automatically
+  revealedCount=1;
+  renderProgress();
+  addClueCard(0);
+  updateNextBtn();
+}
+
+function renderProgress(){
+  const total=currentContestant.clues.length;
+  let html='';
+  for(let i=0;i<total;i++){
+    let cls='clue-dot';
+    if(i<revealedCount) cls+=' revealed';
+    if(i===revealedCount-1) cls+=' current';
+    html+=`<div class="${cls}"></div>`;
+  }
+  html+=`<span class="clue-count-label">${revealedCount}/${total}</span>`;
+  document.getElementById('clueProgress').innerHTML=html;
+}
+
+function addClueCard(idx){
+  const area=document.getElementById('cluesArea');
+  const card=document.createElement('div');
+  card.className='clue-card';
+  card.style.animationDelay='0s';
+  card.innerHTML=`
+    <div class="clue-number">C${idx+1}</div>
+    <div class="clue-text">${currentContestant.clues[idx]}</div>
+  `;
+  area.appendChild(card);
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function nextClue(){
+  if(revealedCount>=currentContestant.clues.length) return;
+  flash();
+  addClueCard(revealedCount);
+  revealedCount++;
+  renderProgress();
+  updateNextBtn();
+}
+
+function updateNextBtn(){
+  const btn=document.getElementById('nextClueBtn');
+  const done=revealedCount>=currentContestant.clues.length;
+  btn.disabled=done;
+  btn.textContent=done?'All clues shown':'Next Clue ›';
+}
+
+/* ═══════════════════════════════════════════
+   ANSWER REVEAL
+═══════════════════════════════════════════ */
+function revealAnswer(){
+  flash();
+  document.getElementById('answerWord').textContent=currentContestant.answer;
+  // Recap of clues shown
+  const shown=currentContestant.clues.slice(0,revealedCount);
+  document.getElementById('answerRecap').innerHTML=shown.map((c,i)=>
+    `<div class="answer-clue-recap-item">Clue ${i+1}: ${c}</div>`
+  ).join('');
+  showScreen('answerScreen');
+  setTimeout(spawnConfetti, 400);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+renderHome();
+</script>
+</body>
+</html>
