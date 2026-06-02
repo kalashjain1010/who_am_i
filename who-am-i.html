@@ -52,11 +52,9 @@ body{overflow-x:hidden}
 .rc-badge{background:rgba(139,92,246,.2);color:var(--purple);font-size:.68rem;
   font-weight:700;padding:.25rem .6rem;border-radius:999px;letter-spacing:.05em;border:1px solid rgba(139,92,246,.3)}
 
-.rc-clues{display:flex;flex-direction:column;gap:.3rem;flex:1}
-.rc-clue-row{display:flex;gap:.6rem;align-items:flex-start}
-.rc-clue-dot{width:6px;height:6px;min-width:6px;border-radius:50%;background:var(--purple);margin-top:.45rem;opacity:.6}
-.rc-clue-text{font-size:.8rem;color:var(--muted);line-height:1.45;flex:1}
-.rc-clue-text.first{color:var(--text);opacity:.85;font-size:.85rem}
+.rc-middle{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 0}
+.rc-mystery{font-size:2.2rem;opacity:.18}
+.rc-tagline{font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 
 .rc-play{
   display:flex;align-items:center;justify-content:center;gap:.4rem;
@@ -105,20 +103,22 @@ body{overflow-x:hidden}
   min-width:24px;padding-top:.15rem;font-weight:700}
 .clue-t{font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.6;font-weight:500}
 
-.game-btns{display:flex;gap:.9rem;padding-top:.5rem;flex-wrap:wrap}
+.game-btns{display:flex;gap:.9rem;padding-top:.5rem;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
   padding:.8rem 1.8rem;border-radius:12px;font-family:'Poppins',sans-serif;
   font-size:.95rem;font-weight:700;cursor:pointer;border:none;
   transition:all .25s cubic-bezier(.34,1.56,.64,1);letter-spacing:.04em}
 .btn:active{transform:scale(.95)}
-.btn-next{background:rgba(139,92,246,.15);border:1px solid var(--border);color:var(--text)}
-.btn-next:hover{background:rgba(139,92,246,.28);border-color:var(--purple)}
-.btn-next:disabled{opacity:.3;cursor:not-allowed}
-.btn-reveal{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#000;flex:1;
-  font-size:1rem;animation:revealPulse 2.2s ease-in-out infinite}
-.btn-reveal:hover{box-shadow:0 6px 28px rgba(245,158,11,.55);transform:translateY(-2px)}
-@keyframes revealPulse{0%,100%{box-shadow:0 4px 16px rgba(245,158,11,.3)}
-  50%{box-shadow:0 4px 32px rgba(245,158,11,.65)}}
+.btn-reveal{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);
+  color:var(--gold);font-size:.82rem;padding:.6rem 1.2rem;white-space:nowrap}
+.btn-reveal:hover{background:rgba(245,158,11,.22);border-color:var(--gold)}
+.btn-next{background:linear-gradient(135deg,var(--purple2),var(--purple));color:#fff;
+  flex:1;font-size:1.05rem;box-shadow:0 4px 18px rgba(139,92,246,.4);
+  animation:nextPulse 2.2s ease-in-out infinite}
+.btn-next:hover{box-shadow:0 6px 28px rgba(139,92,246,.6);transform:translateY(-2px)}
+.btn-next:disabled{opacity:.3;cursor:not-allowed;animation:none;transform:none;box-shadow:none}
+@keyframes nextPulse{0%,100%{box-shadow:0 4px 18px rgba(139,92,246,.35)}
+  50%{box-shadow:0 4px 32px rgba(139,92,246,.7)}}
 
 /* ANSWER PAGE */
 #answerPage{
@@ -197,8 +197,8 @@ body{overflow-x:hidden}
     <div class="clue-dots" id="clueDots"></div>
     <div class="clues-wrap" id="cluesWrap"></div>
     <div class="game-btns">
+      <button class="btn btn-reveal" onclick="showAnswer()">🎭 Reveal</button>
       <button class="btn btn-next" id="nextBtn" onclick="nextClue()">Next Clue ›</button>
-      <button class="btn btn-reveal" onclick="showAnswer()">🎭 Reveal Answer</button>
     </div>
   </div>
 
@@ -211,7 +211,8 @@ body{overflow-x:hidden}
     <div class="ans-word" id="ansWord"></div>
     <div class="ans-recap" id="ansRecap"></div>
     <div class="ans-btns">
-      <button class="btn-nxt" onclick="closeOverlay()">← All Rounds</button>
+      <button class="btn-home" onclick="closeOverlay()">← All Rounds</button>
+      <button class="btn-nxt" id="nextRoundBtn" onclick="nextRound()">Next Round →</button>
     </div>
   </div>
 </div>
@@ -274,7 +275,7 @@ const ALL_ROUNDS = [
 ];
 
 /* ── STATE ── */
-let cur = null, revealed = 0;
+let cur = null, revealed = 0, curIdx = 0;
 
 /* ── PARTICLES ── */
 (function(){
@@ -320,27 +321,23 @@ function flash(){const f=document.getElementById('flash');f.style.opacity='.5';s
 /* ── RENDER HOME ── */
 function renderHome(){
   const grid=document.getElementById('roundsGrid');
-  grid.innerHTML=ALL_ROUNDS.map(r=>{
-    const preview=r.clues.slice(0,Math.min(3,r.clues.length));
-    return `<div class="round-card" onclick="startRound(${r.n-1})">
+  grid.innerHTML=ALL_ROUNDS.map(r=>`
+    <div class="round-card" onclick="startRound(${r.n-1})">
       <div class="rc-top">
         <div class="rc-num">${r.n}</div>
         <div class="rc-badge">${r.clues.length} clue${r.clues.length!==1?'s':''}</div>
       </div>
-      <div class="rc-clues">
-        ${preview.map((c,i)=>`<div class="rc-clue-row">
-          <div class="rc-clue-dot"></div>
-          <div class="rc-clue-text${i===0?' first':''}">${c}</div>
-        </div>`).join('')}
-        ${r.clues.length>3?`<div class="rc-clue-row"><div class="rc-clue-dot" style="opacity:.3"></div><div class="rc-clue-text">+${r.clues.length-3} more clue${r.clues.length-3!==1?'s':''}…</div></div>`:''}
+      <div class="rc-middle">
+        <div class="rc-mystery">❓</div>
+        <div class="rc-tagline">Who am I?</div>
       </div>
       <button class="rc-play" onclick="startRound(${r.n-1});event.stopPropagation()">▶ Play</button>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
 /* ── START ROUND ── */
 function startRound(idx){
+  curIdx=idx;
   cur=ALL_ROUNDS[idx];
   revealed=0;
   document.getElementById('cluesWrap').innerHTML='';
@@ -358,6 +355,12 @@ function startRound(idx){
 function closeOverlay(){
   document.getElementById('overlay').classList.remove('open');
   cfActive=false; cfx.clearRect(0,0,cfc.width,cfc.height);
+}
+
+function nextRound(){
+  const next=curIdx+1;
+  if(next<ALL_ROUNDS.length){ cfActive=false; cfx.clearRect(0,0,cfc.width,cfc.height); startRound(next); }
+  else closeOverlay();
 }
 
 /* ── DOTS ── */
@@ -435,6 +438,8 @@ async function showAnswer(){
     showInitials(wrap,cur.answer);
   }
 
+  const nrBtn=document.getElementById('nextRoundBtn');
+  if(nrBtn){ nrBtn.textContent=curIdx+1<ALL_ROUNDS.length?'Next Round →':'Finish'; }
   setTimeout(launchConfetti,300);
 }
 
