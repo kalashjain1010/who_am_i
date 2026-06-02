@@ -171,7 +171,7 @@ html, body, #root {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 13px; padding: .9rem 1.2rem;
   position: relative; overflow: hidden;
-  animation: slideUp .5s cubic-bezier(.34, 1.56, .64, 1) both;
+  animation: slideUp .35s ease-out both;
 }
 
 .clue-item::before {
@@ -181,7 +181,7 @@ html, body, #root {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px) scale(.97); }
+  from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: none; }
 }
 

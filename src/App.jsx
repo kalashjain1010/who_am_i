@@ -27,9 +27,8 @@ export default function App() {
   }, [])
 
   const nextClue = useCallback(() => {
-    flash()
     setRevealed(r => r + 1)
-  }, [flash])
+  }, [])
 
   const revealAnswer = useCallback(() => {
     flash()
