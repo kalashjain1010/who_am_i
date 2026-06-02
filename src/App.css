@@ -350,6 +350,26 @@ html, body, #root {
 
 .btn-nxt:hover { box-shadow: 0 6px 28px rgba(139, 92, 246, .6); transform: translateY(-2px); }
 
+/* ── AI DIVIDER ── */
+.ai-divider {
+  display: flex; align-items: center; gap: 1.2rem;
+  max-width: 1300px; margin: 3rem auto 0;
+}
+.ai-divider-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--purple), transparent);
+}
+.ai-divider-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .85rem; letter-spacing: .2em; color: var(--gold);
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(245,158,11,.5);
+}
+.ai-note {
+  text-align: center; font-size: .78rem; color: var(--muted);
+  margin: .6rem auto 0; letter-spacing: .05em; max-width: 1300px;
+}
+
 /* ── FLASH ── */
 .flash {
   position: fixed; inset: 0; z-index: 400;

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
-import { ALL_ROUNDS } from './data.js'
+import { ALL_ROUNDS, MY_ROUNDS } from './data.js'
+const ROUNDS = [...ALL_ROUNDS, ...MY_ROUNDS]
 import ParticleBackground from './ParticleBackground.jsx'
 import Confetti from './Confetti.jsx'
 import Home from './Home.jsx'
@@ -38,7 +39,7 @@ export default function App() {
 
   const nextRound = useCallback(() => {
     setConfetti(false)
-    if (roundIdx + 1 < ALL_ROUNDS.length) {
+    if (roundIdx + 1 < ROUNDS.length) {
       startRound(roundIdx + 1)
     } else {
       setScreen('home')
@@ -50,7 +51,7 @@ export default function App() {
     setScreen('home')
   }, [])
 
-  const round = ALL_ROUNDS[roundIdx]
+  const round = ROUNDS[roundIdx]
 
   return (
     <>
@@ -81,7 +82,7 @@ export default function App() {
               revealed={revealed}
               onNext={nextRound}
               onHome={goHome}
-              isLast={roundIdx + 1 >= ALL_ROUNDS.length}
+              isLast={roundIdx + 1 >= ROUNDS.length}
             />
           )}
         </div>
