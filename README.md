@@ -50,12 +50,6 @@ npm run dev
 
 ---
 
-## Round List (Spoiler Warning)
-
-<details>
-
-
-</details>
 
 ---
 
