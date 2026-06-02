@@ -21,10 +21,11 @@ function RoundCard({ r, idx, onSelect, isDone }) {
   )
 }
 
-export default function Home({ onSelect, completed, gameMode, onModeChange }) {
+export default function Home({ onSelect, completed, gameMode, onModeChange, onBack }) {
   const base = ALL_ROUNDS.length
   return (
     <div className="home">
+      {onBack && <button className="back-btn home-back-btn" onClick={onBack}>← Games</button>}
       <div className="home-title">WHO AM I?</div>
 
       {/* Mode toggle */}
