@@ -2,8 +2,10 @@
 
 # 🎭 Who Am I?
 
-**A live comedy quiz game for game nights.**
-50 rounds of cryptic clues about famous personalities — reveal one clue at a time, let the room guess, then drop the answer.
+**The quiz game that will absolutely destroy your friendships.**
+
+50 rounds of cryptic, funny, and deeply unfair clues about famous personalities.
+One host. Any number of players. Zero mercy.
 
 <br/>
 
@@ -26,13 +28,53 @@
 
 ---
 
-## 🕹️ How to Play
+## 🤔 Why This Exists
 
-1. **Host picks a round** from the grid of 50
-2. **Reveal clues one by one** — players shout their guesses
-3. **Hit Reveal Answer** when ready — a Wikipedia photo drops with a big animated reveal
-4. Every clue gets an **explanation** so the room understands the wordplay
-5. Completed rounds are **saved** — green ✓ on cards you've already played
+There's a YouTube show called **Nation Wants to Guess** by Gursimran Khamba (AIB) where comedians are blindfolded and given 5 cryptic clues to guess a famous person. The clues are clever, layered, and genuinely funny — things like:
+
+> *"My favourite song is Wake Me Up When September Ends"* → **Osama Bin Laden**
+
+> *"I am every lawyer's dream client"* → **Kunal Kamra**
+
+> *"There is no guardian for my Galaxy"* → **Salman Khan**
+
+We watched the show, loved the format, and thought — *why not build a version we can play with friends ourselves?* So we extracted all the rounds from the show's transcripts, wrote explanations for every clue, added 11 original bonus rounds, and wrapped it in a game you can open on any screen.
+
+---
+
+## 🎮 How to Play
+
+Best played with **3–8 people**, one screen, and at least one person who thinks they're very smart.
+
+1. **The host opens the game** and picks a round — nobody else sees the screen
+2. **Reveal clues one at a time** — players shout their guesses after each one
+3. The earlier someone guesses correctly, the more impressive it is
+4. When ready, hit **Reveal Answer** — a photo of the person drops with a big reveal
+5. Every clue gets an **explanation** — great for the *"oh wait that's actually genius"* moment
+6. Rounds you've played show a **green ✓** so you never repeat
+
+The game gets funnier the more opinionated your friend group is. Trust us.
+
+---
+
+## 😂 A Sample Round
+
+Here's what a clue set looks like — try guessing before you scroll:
+
+> **Clue 1:** I have stopped trying
+>
+> **Clue 2:** I am very busy on Raksha Bandhan
+>
+> **Clue 3:** I wish my brothers would do something except divorce
+>
+> **Clue 4:** There is no guardian for my Galaxy
+
+<details>
+<summary>Answer</summary>
+
+**Salman Khan** — hasn't married in 30 years, his sisters tie him rakhi every year, Arbaaz & Sohail have both divorced, and he's the Samsung Galaxy brand ambassador
+
+</details>
 
 ---
 
@@ -40,62 +82,21 @@
 
 | | |
 |---|---|
-| 🎯 **50 Rounds** | 39 from *Nation Wants to Guess* + 11 bonus rounds |
+| 🎯 **50 Rounds** | 39 from the show + 11 original bonus rounds |
 | 🔍 **Clue-by-clue reveal** | Host controls the pace, no accidental spoilers |
-| 📸 **Live Wikipedia photo** | Auto-fetched on every answer reveal |
-| 💡 **Clue explanations** | Every hint explained — great for the "ohhhh" moment |
-| ✅ **Done tracking** | LocalStorage — green badges on completed rounds |
+| 📸 **Live Wikipedia photo** | Auto-fetched for every answer |
+| 💡 **Clue explanations** | Every hint broken down after the reveal |
+| ✅ **Done tracking** | Completed rounds saved — green ✓ badge on played cards |
 | 🎊 **Confetti** | Because every right answer deserves it |
-| 📱 **Responsive** | Works on mobile, tablet, and projected screens |
-
----
-
-## 🧠 Who's in the Game?
-
-<details>
-<summary><b>Show all answers (spoilers)</b></summary>
-
-<br/>
-
-| # | Answer | # | Answer |
-|:---:|--------|:---:|--------|
-| 1 | Mother Teresa | 26 | Christopher Nolan |
-| 2 | Kunal Kamra | 27 | Neil Armstrong |
-| 3 | Osama Bin Laden | 28 | Arvind Kejriwal |
-| 4 | Dawood Ibrahim | 29 | Sourav Ganguly |
-| 5 | Raj Kundra | 30 | Viswanathan Anand |
-| 6 | Mohammad Ali Jinnah | 31 | Shashi Tharoor |
-| 7 | Milind Soman | 32 | Rekha |
-| 8 | Donald Trump | 33 | Sunny Deol |
-| 9 | Eminem | 34 | Vladimir Putin |
-| 10 | MS Dhoni | 35 | The Rock |
-| 11 | Jawaharlal Nehru | 36 | Ratan Tata |
-| 12 | Anurag Kashyap | 37 | Stephen Hawking |
-| 13 | Mahatma Gandhi | 38 | Rahul Gandhi |
-| 14 | Virat Kohli | 39 | Adolf Hitler |
-| 15 | Sanjay Dutt | 40 | Narendra Modi ✦ |
-| 16 | Ajay Devgn | 41 | Arnab Goswami ✦ |
-| 17 | Ramdev | 42 | Shah Rukh Khan ✦ |
-| 18 | Yo Yo Honey Singh | 43 | Ranveer Singh ✦ |
-| 19 | Kangana Ranaut | 44 | Kapil Sharma ✦ |
-| 20 | Sachin Tendulkar | 45 | Neeraj Chopra ✦ |
-| 21 | Salman Khan | 46 | Hardik Pandya ✦ |
-| 22 | Agastya Nanda | 47 | Jeff Bezos ✦ |
-| 23 | Poonam Pandey | 48 | Taylor Swift ✦ |
-| 24 | Deepika Padukone | 49 | Uorfi Javed ✦ |
-| 25 | Elon Musk | 50 | Priyanka Chopra ✦ |
-
-*✦ Bonus Rounds*
-
-</details>
+| 📱 **Responsive** | Works on phone, tablet, laptop, or a projected screen |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **React 18 + Vite** — fast SPA, no framework overhead
-- **Canvas API** — particle background + confetti animations
-- **Wikipedia REST API** — live answer photo fetch
+- **React 18 + Vite** — fast, no framework overhead
+- **Canvas API** — particle background + confetti animations built from scratch
+- **Wikipedia REST API** — live answer photo on every reveal
 - **localStorage** — completed rounds persist across sessions
 
 ---
@@ -112,6 +113,8 @@ npm run dev
 ---
 
 <div align="center">
+
+*Inspired by [Nation Wants to Guess](https://www.youtube.com/@GursimranKhamba) by Gursimran Khamba.*
 
 Built with ☕ for game nights that go on too long.
 
