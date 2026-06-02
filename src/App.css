@@ -352,6 +352,21 @@ html, body, #root {
 
 .btn-nxt:hover { box-shadow: 0 6px 28px rgba(139, 92, 246, .6); transform: translateY(-2px); }
 
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  display: flex; align-items: center; gap: 1.2rem;
+  max-width: 1300px; margin: 3rem auto 0; padding: 0 .5rem;
+}
+.sd-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,.5), transparent);
+}
+.sd-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .8rem; letter-spacing: .22em; color: var(--purple);
+  white-space: nowrap; opacity: .75;
+}
+
 /* ── MOBILE ── */
 @media (max-width: 768px) {
   .home { padding: 1.2rem 1rem 3rem; }
